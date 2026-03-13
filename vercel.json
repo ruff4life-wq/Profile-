@@ -1,17 +1,5 @@
-# Vercel Deployment Configuration
-
-# Set the output directory for Vercel to serve
-output: dist
-
-# Set the build command
-buildCommand: npm run build
-
-# Set the start command for serverless function
-# (Vercel will use this for SSR/Express apps)
-
-# For static export, Vercel will serve from dist
-# For custom server, use vercel.json rewrites
-
-rewrites:
-  - source: /(.*)
-    destination: /server.ts
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/server.ts" }
+  ]
+}
