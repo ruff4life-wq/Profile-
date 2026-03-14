@@ -1,5 +1,0 @@
-# .vercelignore
-node_modules
-*.log
-dist/
-.env*

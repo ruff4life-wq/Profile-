@@ -11,21 +11,8 @@ async function startServer() {
   const PORT = 3000;
 
   // API Routes
-  app.get("/api/news", async (req, res) => {
-    try {
-      const apiKey = process.env.VITE_GNEWS_API_KEY || "fba8a02e87241e08a242b3cd9a220ab8";
-      const response = await fetch(`https://gnews.io/api/v4/search?q="AI Governance"&lang=en&max=3&apikey=${apiKey}`);
-      
-      if (!response.ok) {
-        throw new Error(`GNews API responded with status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      res.json(data);
-    } catch (error) {
-      console.error("Error fetching news from GNews:", error);
-      res.status(500).json({ error: "Failed to fetch news" });
-    }
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok" });
   });
 
   // Vite middleware for development
