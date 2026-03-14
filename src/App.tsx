@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Shield, 
+import { motion } from 'motion/react';
+
+import {
   Cpu, 
   Network, 
   Cloud, 
@@ -23,7 +24,8 @@ import {
   Moon,
   FileText,
   Newspaper,
-  BarChart3
+  BarChart3,
+  Shield
 } from 'lucide-react';
 
 // --- Data ---
@@ -125,11 +127,6 @@ const SectionHeading = ({ children, icon: Icon }: { children: React.ReactNode, i
   </div>
 );
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 3a92e16 (remove news feed logic)
 export default function App() {
   const [copied, setCopied] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -255,7 +252,7 @@ export default function App() {
               The user provided an image in the prompt, which I'll assume is named 'profile.jpg'
             */}
             <img 
-              src="/profile.jpg" 
+              src="/Profile.jpg" 
               alt="Marvin Ruff" 
               className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
               referrerPolicy="no-referrer"
@@ -375,11 +372,6 @@ export default function App() {
           </div>
         </section>
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 3a92e16 (remove news feed logic)
         {/* Skills & Certs */}
         <section id="skills" className="grid md:grid-cols-2 gap-24">
           <div className="space-y-12">
