@@ -221,14 +221,7 @@ export default function App() {
                 <Mail className="w-4 h-4" />
                 {copied ? 'Email Copied' : 'Get in Touch'}
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button"/resume.pdf"resume.pdf>
-             href="/resume.pdf" 
-                download 
-                className={`group flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${isDarkMode ? 'bg-white text-black hover:bg-emerald-400' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
-              >
-                <FileText className="w-4 h-4" />
-                Download Resume
-              </a>
+              <a href="/resume.pdf" download>Download Resume</a>
               <a 
                 href={`https://${RESUME_DATA.linkedin}`} 
                 target="_blank" 
