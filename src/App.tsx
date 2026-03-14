@@ -125,6 +125,11 @@ const SectionHeading = ({ children, icon: Icon }: { children: React.ReactNode, i
   </div>
 );
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 3a92e16 (remove news feed logic)
 export default function App() {
   const [copied, setCopied] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -168,6 +173,7 @@ export default function App() {
             <a href="#about" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>About</a>
             <a href="#experience" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Experience</a>
             <a href="#projects" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Projects</a>
+
             <a href="#skills" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Skills</a>
             
             <div className="flex items-center gap-4 ml-4">
@@ -369,6 +375,11 @@ export default function App() {
           </div>
         </section>
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 3a92e16 (remove news feed logic)
         {/* Skills & Certs */}
         <section id="skills" className="grid md:grid-cols-2 gap-24">
           <div className="space-y-12">
