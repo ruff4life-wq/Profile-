@@ -199,7 +199,6 @@ const NewsSection = ({ isDarkMode }: { isDarkMode: boolean }) => {
 export default function App() {
   const [copied, setCopied] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
-
   useEffect(() => {
     // Check system preference on initial load
     const savedTheme = localStorage.getItem('theme');
