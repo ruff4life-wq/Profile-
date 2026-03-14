@@ -3,11 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-
-import {
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  Shield, 
   Cpu, 
   Network, 
   Cloud, 
@@ -24,8 +23,7 @@ import {
   Moon,
   FileText,
   Newspaper,
-  BarChart3,
-  Shield
+  BarChart3
 } from 'lucide-react';
 
 // --- Data ---
@@ -127,6 +125,77 @@ const SectionHeading = ({ children, icon: Icon }: { children: React.ReactNode, i
   </div>
 );
 
+const NewsSection = ({ isDarkMode }: { isDarkMode: boolean }) => {
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await fetch("/api/news");
+        if (!response.ok) {
+          throw new Error(`Server responded with status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.articles) {
+          setArticles(data.articles);
+        }
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNews();
+  }, []);
+
+  if (loading) return (
+    <div className="grid md:grid-cols-3 gap-8 animate-pulse">
+      {[1, 2, 3].map(i => (
+        <div key={i} className="h-64 rounded-2xl bg-white/5 border border-white/10" />
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="grid md:grid-cols-3 gap-8">
+      {articles.map((article, i) => (
+        <motion.a
+          key={i}
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.1 }}
+          className={`group relative overflow-hidden rounded-2xl border transition-all ${isDarkMode ? 'border-white/5 bg-white/[0.02] hover:border-[#00fddc]/20' : 'border-black/5 bg-black/[0.01] hover:border-[#00fddc]/20'}`}
+        >
+          <div className="aspect-video overflow-hidden">
+            <img 
+              src={article.image} 
+              alt={article.title}
+              className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+          <div className="p-6 space-y-3">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-[#00fddc]/60">
+              {new Date(article.publishedAt).toLocaleDateString()}
+            </div>
+            <h3 className="text-lg font-bold tracking-tight group-hover:text-[#00fddc] transition-colors line-clamp-2">
+              {article.title}
+            </h3>
+            <p className={`text-xs leading-relaxed line-clamp-3 ${isDarkMode ? 'text-white/50' : 'text-slate-500'}`}>
+              {article.description}
+            </p>
+          </div>
+        </motion.a>
+      ))}
+    </div>
+  );
+};
+
 export default function App() {
   const [copied, setCopied] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -170,7 +239,7 @@ export default function App() {
             <a href="#about" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>About</a>
             <a href="#experience" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Experience</a>
             <a href="#projects" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Projects</a>
-
+            <a href="#insights" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Insights</a>
             <a href="#skills" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Skills</a>
             
             <div className="flex items-center gap-4 ml-4">
@@ -213,15 +282,23 @@ export default function App() {
             <p className={`text-xl max-w-md font-light leading-relaxed ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>
               {RESUME_DATA.title}. Specializing in secure infrastructure, IAM, and the intersection of Cybersecurity and Generative AI.
             </p>
-            <div className="flex items-center gap-4 pt-4">
+            <div className="flex items-center gap-4 pt-4">
               <button 
                 onClick={handleCopyEmail}
                 className={`group flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${isDarkMode ? 'bg-white text-black hover:bg-emerald-400' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
-              >"/resume.pdf"
+              >
                 <Mail className="w-4 h-4" />
                 {copied ? 'Email Copied' : 'Get in Touch'}
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              <a href="/resume.pdf" download>Download Resume</a>
+              </button>
+              <a 
+                href="/AI².pdf" 
+                download 
+                className={`group flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${isDarkMode ? 'bg-white text-black hover:bg-emerald-400' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
+              >
+                <FileText className="w-4 h-4" />
+                Download Resume
+              </a>
               <a 
                 href={`https://${RESUME_DATA.linkedin}`} 
                 target="_blank" 
@@ -244,7 +321,7 @@ export default function App() {
               The user provided an image in the prompt, which I'll assume is named 'profile.jpg'
             */}
             <img 
-              src="/Profile.jpg" 
+              src="/profile.jpg" 
               alt="Marvin Ruff" 
               className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
               referrerPolicy="no-referrer"
@@ -316,14 +393,21 @@ export default function App() {
                         {point}
                       </li>
                     ))}
-                  <a
-                    href="/resume.pdf"
-                    download
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full transition-all duration-300 font-medium group"
-                  >
-                    <FileText className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    Download Resume
-                  </a>
+                  </ul>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Projects Section */}
+        <section id="projects">
+          <SectionHeading icon={Network}>Featured Projects</SectionHeading>
+          <div className="grid md:grid-cols-3 gap-8">
+            {RESUME_DATA.projects.map((project, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
@@ -355,6 +439,12 @@ export default function App() {
               </motion.div>
             ))}
           </div>
+        </section>
+
+        {/* Industry Insights Section */}
+        <section id="insights">
+          <SectionHeading icon={Newspaper}>Latest Industry Insights</SectionHeading>
+          <NewsSection isDarkMode={isDarkMode} />
         </section>
 
         {/* Skills & Certs */}
