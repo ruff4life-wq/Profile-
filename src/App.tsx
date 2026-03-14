@@ -290,9 +290,9 @@ export default function App() {
                 {copied ? 'Email Copied' : 'Get in Touch'}
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
-              <a 
-                href="/AI².pdf" 
-                download 
+              <a
+                href="/resume.pdf"
+                download
                 className={`group flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${isDarkMode ? 'bg-white text-black hover:bg-emerald-400' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
               >
                 <FileText className="w-4 h-4" />
