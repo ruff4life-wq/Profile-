@@ -213,17 +213,16 @@ export default function App() {
             <p className={`text-xl max-w-md font-light leading-relaxed ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>
               {RESUME_DATA.title}. Specializing in secure infrastructure, IAM, and the intersection of Cybersecurity and Generative AI.
             </p>
-            <div className="flex items-center gap-4 pt-4">
+            <div className="flex items-center gap-4 pt-4">
               <button 
                 onClick={handleCopyEmail}
                 className={`group flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${isDarkMode ? 'bg-white text-black hover:bg-emerald-400' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
-              >
+              >"/resume.pdf"
                 <Mail className="w-4 h-4" />
                 {copied ? 'Email Copied' : 'Get in Touch'}
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <a 
-                href="/AI².pdf" 
+              </button"/resume.pdf"resume.pdf>
+             href="/resume.pdf" 
                 download 
                 className={`group flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${isDarkMode ? 'bg-white text-black hover:bg-emerald-400' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
               >
