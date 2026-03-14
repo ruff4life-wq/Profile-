@@ -323,21 +323,14 @@ export default function App() {
                         {point}
                       </li>
                     ))}
-                  </ul>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* Projects Section */}
-        <section id="projects">
-          <SectionHeading icon={Network}>Featured Projects</SectionHeading>
-          <div className="grid md:grid-cols-3 gap-8">
-            {RESUME_DATA.projects.map((project, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
+                  <a
+                    href="/resume.pdf"
+                    download
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full transition-all duration-300 font-medium group"
+                  >
+                    <FileText className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    Download Resume
+                  </a>
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
