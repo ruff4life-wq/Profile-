@@ -25,6 +25,7 @@ import {
   Newspaper,
   BarChart3
 } from 'lucide-react';
+import ChatBot from './components/ChatBot';
 
 // --- Data ---
 const RESUME_DATA = {
@@ -125,80 +126,10 @@ const SectionHeading = ({ children, icon: Icon }: { children: React.ReactNode, i
   </div>
 );
 
-const NewsSection = ({ isDarkMode }: { isDarkMode: boolean }) => {
-  const [articles, setArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const response = await fetch("/api/news");
-        if (!response.ok) {
-          throw new Error(`Server responded with status: ${response.status}`);
-        }
-        const data = await response.json();
-        if (data.articles) {
-          setArticles(data.articles);
-        }
-      } catch (error) {
-        console.error("Error fetching news:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchNews();
-  }, []);
-
-  if (loading) return (
-    <div className="grid md:grid-cols-3 gap-8 animate-pulse">
-      {[1, 2, 3].map(i => (
-        <div key={i} className="h-64 rounded-2xl bg-white/5 border border-white/10" />
-      ))}
-    </div>
-  );
-
-  return (
-    <div className="grid md:grid-cols-3 gap-8">
-      {articles.map((article, i) => (
-        <motion.a
-          key={i}
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: i * 0.1 }}
-          className={`group relative overflow-hidden rounded-2xl border transition-all ${isDarkMode ? 'border-white/5 bg-white/[0.02] hover:border-[#00fddc]/20' : 'border-black/5 bg-black/[0.01] hover:border-[#00fddc]/20'}`}
-        >
-          <div className="aspect-video overflow-hidden">
-            <img 
-              src={article.image} 
-              alt={article.title}
-              className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-          <div className="p-6 space-y-3">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-[#00fddc]/60">
-              {new Date(article.publishedAt).toLocaleDateString()}
-            </div>
-            <h3 className="text-lg font-bold tracking-tight group-hover:text-[#00fddc] transition-colors line-clamp-2">
-              {article.title}
-            </h3>
-            <p className={`text-xs leading-relaxed line-clamp-3 ${isDarkMode ? 'text-white/50' : 'text-slate-500'}`}>
-              {article.description}
-            </p>
-          </div>
-        </motion.a>
-      ))}
-    </div>
-  );
-};
-
 export default function App() {
   const [copied, setCopied] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
+
   useEffect(() => {
     // Check system preference on initial load
     const savedTheme = localStorage.getItem('theme');
@@ -238,7 +169,6 @@ export default function App() {
             <a href="#about" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>About</a>
             <a href="#experience" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Experience</a>
             <a href="#projects" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Projects</a>
-            <a href="#insights" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Insights</a>
             <a href="#skills" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Skills</a>
             
             <div className="flex items-center gap-4 ml-4">
@@ -290,9 +220,9 @@ export default function App() {
                 {copied ? 'Email Copied' : 'Get in Touch'}
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
-              <a
-                href="/resume.pdf"
-                download
+              <a 
+                href="/AI².pdf" 
+                download 
                 className={`group flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${isDarkMode ? 'bg-white text-black hover:bg-emerald-400' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
               >
                 <FileText className="w-4 h-4" />
@@ -440,12 +370,6 @@ export default function App() {
           </div>
         </section>
 
-        {/* Industry Insights Section */}
-        <section id="insights">
-          <SectionHeading icon={Newspaper}>Latest Industry Insights</SectionHeading>
-          <NewsSection isDarkMode={isDarkMode} />
-        </section>
-
         {/* Skills & Certs */}
         <section id="skills" className="grid md:grid-cols-2 gap-24">
           <div className="space-y-12">
@@ -533,6 +457,7 @@ export default function App() {
         </footer>
 
       </main>
+      <ChatBot />
     </div>
   );
 }

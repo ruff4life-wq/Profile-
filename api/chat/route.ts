@@ -1,32 +1,57 @@
-import "dotenv/config";
-import express from "express";
-import { createServer as createViteServer } from "vite";
-import path from "path";
-import { fileURLToPath } from "url";
 import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Allow streaming responses up to 30 seconds
+export const maxDuration = 30;
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+// Simple in-memory rate limiting
+// Note: In serverless environments, this state is per-instance and not shared globally.
+// For low-traffic portfolio sites, this provides basic protection against bursts.
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
-  app.use(express.json());
+function checkRateLimit(ip: string): { limited: boolean; remaining: number } {
+  const now = Date.now();
+  const limit = 20;
+  const windowMs = 60 * 60 * 1000; // 1 hour
 
-  // API Routes
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok" });
-  });
+  const record = rateLimitMap.get(ip);
 
-  app.post("/api/chat", async (req, res) => {
-    const { messages } = req.body;
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
+    return { limited: false, remaining: limit - 1 };
+  }
 
-    try {
-      const result = streamText({
-        model: anthropic('claude-sonnet-4-5'),
-        system: `You are "Marvin's AI Assistant", a specialized AI representative for Marvin Ruff, a Security & AI Governance Specialist with over 14 years of experience in IT.
+  record.count++;
+  if (record.count > limit) {
+    return { limited: true, remaining: 0 };
+  }
+
+  return { limited: false, remaining: limit - record.count };
+}
+
+export async function POST(req: Request) {
+  // Get IP address from headers
+  const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+  
+  const { limited } = checkRateLimit(ip);
+
+  if (limited) {
+    return new Response(
+      JSON.stringify({ 
+        error: 'Too many requests. Marvin\'s AI Assistant is resting. Please try again in an hour.' 
+      }), 
+      { 
+        status: 429,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  const { messages } = await req.json();
+
+  const result = streamText({
+    model: anthropic('claude-sonnet-4-5'),
+    system: `You are "Marvin's AI Assistant", a specialized AI representative for Marvin Ruff, a Security & AI Governance Specialist with over 14 years of experience in IT.
 
 Your primary objective is to provide information about Marvin's professional background, his extensive experience in cybersecurity and AI governance, his technical skills, and his portfolio projects.
 
@@ -44,34 +69,8 @@ Marvin's Core Profile:
 - Role: Security & AI Governance Specialist.
 - Experience: 14+ years in IT.
 - Focus Areas: Cybersecurity, AI Risk Management, Governance Frameworks, and Secure System Architecture.`,
-        messages,
-      });
-
-      result.pipeTextStreamToResponse(res);
-    } catch (error) {
-      console.error('Chat error:', error);
-      res.status(500).json({ error: 'Failed to process chat request' });
-    }
+    messages,
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
-  }
-
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  return result.toTextStreamResponse();
 }
-
-startServer();
