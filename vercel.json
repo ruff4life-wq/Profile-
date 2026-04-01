@@ -4,13 +4,14 @@
   "builds": [
     {
       "src": "server.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["public/**"]
-      }
+      "use": "@vercel/node"
     }
   ],
   "routes": [
+    {
+      "src": "/profile.jpg",
+      "dest": "/public/profile.jpg"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/server.ts"
