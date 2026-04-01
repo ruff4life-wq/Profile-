@@ -211,8 +211,9 @@ export default function App() {
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
               <a 
-                href="/Marvin-Ruff-Profile.pdf" 
-                download 
+                href="https://drive.google.com/uc?export=download&id=1AbyuqJEzJjg1W9otWNNco26mJ133dfAi" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`group flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${isDarkMode ? 'bg-white text-black hover:bg-emerald-400' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
               >
                 <FileText className="w-4 h-4" />
