@@ -23,6 +23,14 @@ async function startServer() {
   app.post("/api/chat", async (req, res) => {
     const { messages } = req.body;
 
+    // Convert UI messages (parts format) to core messages (content format)
+    const coreMessages = messages.map((m: any) => ({
+      role: m.role,
+      content: m.parts
+        ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
+        : m.content,
+    }));
+
     try {
       const result = streamText({
         model: anthropic('claude-sonnet-4-5'),
@@ -44,7 +52,7 @@ Marvin's Core Profile:
 - Role: Security & AI Governance Specialist.
 - Experience: 14+ years in IT.
 - Focus Areas: Cybersecurity, AI Risk Management, Governance Frameworks, and Secure System Architecture.`,
-        messages,
+        messages: coreMessages,
       });
 
       result.pipeTextStreamToResponse(res);
