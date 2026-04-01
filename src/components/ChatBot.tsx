@@ -14,81 +14,6 @@ const ChatBot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
-  };
-
-  const handleSend = async () => {
-    if (!input || !input.trim() || isLoading) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input.trim(),
-    };
-
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-    setInput('');
-    setIsLoading(true);
-
-    // Initialize assistant message
-    const assistantMessageId = (Date.now() + 1).toString();
-    const assistantMessage: Message = {
-      id: assistantMessageId,
-      role: 'assistant',
-      content: '',
-    };
-    setMessages([...newMessages, assistantMessage]);
-
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ messages: newMessages }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch response');
-      }
-
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error('No reader available');
-
-      const decoder = new TextDecoder();
-      let accumulatedContent = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        accumulatedContent += chunk;
-
-        setMessages((prev) => 
-          prev.map((msg) => 
-            msg.id === assistantMessageId 
-              ? { ...msg, content: accumulatedContent } 
-              : msg
-          )
-        );
-      }
-    } catch (error) {
-      console.error('Chat error:', error);
-      setMessages((prev) => 
-        prev.map((msg) => 
-          msg.id === assistantMessageId 
-            ? { ...msg, content: 'Sorry, I encountered an error. Please try again.' } 
-            : msg
-        )
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -96,14 +21,74 @@ const ChatBot: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isOpen) {
-      scrollToBottom();
-    }
-  }, [messages, isOpen]);
+    scrollToBottom();
+  }, [messages]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      handleSend();
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input.trim(),
+    };
+
+    // Add user message and a placeholder for the assistant
+    const assistantMessageId = (Date.now() + 1).toString();
+    const assistantPlaceholder: Message = {
+      id: assistantMessageId,
+      role: 'assistant',
+      content: '',
+    };
+
+    const updatedMessages = [...messages, userMessage];
+    setMessages([...updatedMessages, assistantPlaceholder]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          // Only send role and content to the API
+          messages: updatedMessages.map(({ role, content }) => ({ role, content })) 
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to connect to Marvin\'s Assistant');
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      if (!reader) throw new Error('No stream available');
+
+      let accumulatedText = '';
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        accumulatedText += chunk;
+
+        // Functional update to avoid closure staleness
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === assistantMessageId ? { ...msg, content: accumulatedText } : msg
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Chat error:', error);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMessageId 
+            ? { ...msg, content: "I'm having trouble connecting right now. Please check your connection or try again shortly." } 
+            : msg
+        )
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,7 +100,7 @@ const ChatBot: React.FC = () => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="mb-4 w-[90vw] sm:w-[400px] h-[500px] flex flex-col rounded-2xl overflow-hidden border border-[#D4AF37]/30 shadow-2xl backdrop-blur-xl bg-[#0A192F]/90 text-white"
+            className="mb-4 w-[90vw] sm:w-[400px] h-[550px] flex flex-col rounded-2xl overflow-hidden border border-[#D4AF37]/30 shadow-2xl backdrop-blur-xl bg-[#0A192F]/95 text-white"
           >
             {/* Header */}
             <div className="p-4 border-b border-[#D4AF37]/20 bg-[#0A192F] flex items-center justify-between">
@@ -128,100 +113,81 @@ const ChatBot: React.FC = () => {
                   <p className="text-[10px] uppercase tracking-widest text-gray-400">Security & Governance</p>
                 </div>
               </div>
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
-              >
+              <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white transition-colors">
                 <X size={20} />
               </button>
             </div>
 
-            {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-[#D4AF37]/20">
+            {/* Chat Body */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 && (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-2">
-                  <Bot size={32} className="text-[#D4AF37]/40 mb-2" />
-                  <p className="text-sm text-gray-400 italic">
-                    "How can I assist you with Marvin's professional profile today?"
-                  </p>
+                <div className="h-full flex flex-col items-center justify-center opacity-40 text-center px-8">
+                  <Shield size={40} className="mb-4 text-[#D4AF37]" />
+                  <p className="text-sm italic">"Secure connection established. How can I assist with Marvin's professional inquiries?"</p>
                 </div>
               )}
-              
               {messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`flex gap-2 max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center border ${
-                      m.role === 'user' ? 'border-blue-400/50 bg-blue-900/30' : 'border-[#D4AF37]/50 bg-[#112240]'
-                    }`}>
-                      {m.role === 'user' ? <User size={12} /> : <Bot size={12} className="text-[#D4AF37]" />}
-                    </div>
-                    <div className={`p-3 rounded-2xl text-sm leading-relaxed ${
-                      m.role === 'user' 
-                        ? 'bg-blue-600/20 border border-blue-500/30 text-blue-50' 
-                        : 'bg-[#112240] border border-[#D4AF37]/20 text-gray-200'
-                    }`}>
-                      {m.content}
-                    </div>
+                <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${
+                    m.role === 'user' 
+                      ? 'bg-blue-600/20 border border-blue-500/30 text-blue-50' 
+                      : 'bg-[#112240] border border-[#D4AF37]/20 text-gray-200'
+                  }`}>
+                    {m.content}
                   </div>
                 </div>
               ))}
-              
-              {isLoading && messages[messages.length - 1]?.content === '' && (
-                <div className="flex justify-start">
-                  <div className="flex gap-2 items-center bg-[#112240] border border-[#D4AF37]/20 p-3 rounded-2xl">
-                    <Loader2 size={14} className="animate-spin text-[#D4AF37]" />
-                    <span className="text-xs text-gray-400">Assistant is typing...</span>
-                  </div>
+              {isLoading && !messages[messages.length - 1]?.content && (
+                <div className="flex items-center gap-2 text-gray-400 text-xs italic">
+                  <Loader2 size={12} className="animate-spin" />
+                  Encrypting response...
                 </div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
-            <div className="p-4 border-t border-[#D4AF37]/10 bg-[#0A192F]/50">
-              <div className="relative flex items-center gap-2">
+            {/* Footer Input */}
+            <div className="p-4 bg-[#0A192F]/50 border-t border-[#D4AF37]/10">
+              <div className="relative">
                 <input
                   type="text"
                   value={input}
-                  onChange={handleInputChange}
-                  onKeyDown={handleKeyDown}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   placeholder="Ask about Marvin's expertise..."
-                  className="w-full bg-[#112240] border border-[#D4AF37]/20 rounded-full py-2.5 pl-4 pr-12 text-sm focus:outline-none focus:border-[#D4AF37] transition-all placeholder:text-gray-500"
+                  className="w-full bg-[#112240] border border-[#D4AF37]/20 rounded-full py-2.5 pl-4 pr-12 text-sm focus:outline-none focus:border-[#D4AF37]"
                 />
                 <button
                   onClick={handleSend}
-                  disabled={isLoading || !input || !input.trim()}
-                  className="absolute right-1.5 p-1.5 rounded-full bg-[#D4AF37] text-[#0A192F] hover:bg-[#F4CF67] disabled:opacity-50 disabled:hover:bg-[#D4AF37] transition-all"
+                  disabled={isLoading || !input.trim()}
+                  className="absolute right-1.5 top-1.5 p-1.5 rounded-full bg-[#D4AF37] text-[#0A192F] hover:scale-105 transition-transform disabled:opacity-30"
                 >
                   <Send size={16} />
                 </button>
               </div>
-              <p className="text-[9px] text-center mt-2 text-gray-500 uppercase tracking-tighter">
-                Powered by Claude Sonnet 4.5 &bull; AI Governance Compliant
+              <p className="text-[9px] text-center mt-3 text-gray-500 uppercase tracking-widest">
+                Identity Verified &bull; AI Governance Compliant
               </p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Toggle Button */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+      <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 ${
-          isOpen 
-            ? 'bg-[#112240] border border-[#D4AF37] text-[#D4AF37]' 
-            : 'bg-[#D4AF37] text-[#0A192F] hover:shadow-[#D4AF37]/20'
-        }`}
+        className="w-14 h-14 rounded-full bg-[#D4AF37] flex items-center justify-center text-[#0A192F] shadow-xl hover:scale-110 transition-transform"
       >
         {isOpen ? <X size={28} /> : <MessageCircle size={28} />}
-      </motion.button>
+      </button>
     </div>
   );
 };
+
+// Simple Shield icon fallback for the empty state
+const Shield = ({ size, className }: { size: number, className: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
 
 export default ChatBot;
