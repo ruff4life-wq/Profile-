@@ -1,20 +1,16 @@
+@'
 {
   "version": 2,
   "builds": [
     {
       "src": "server.ts",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["public/**"]
+      }
     }
   ],
   "routes": [
-    {
-      "src": "/Marvin-Ruff-Profile.pdf",
-      "dest": "/public/Marvin-Ruff-Profile.pdf"
-    },
-    {
-      "src": "/profile.jpg",
-      "dest": "/public/profile.jpg"
-    },
     {
       "src": "/api/(.*)",
       "dest": "/server.ts"
@@ -25,3 +21,4 @@
     }
   ]
 }
+'@ | Set-Content vercel.json
