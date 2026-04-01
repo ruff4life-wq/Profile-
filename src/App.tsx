@@ -221,7 +221,7 @@ export default function App() {
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
               <a 
-                href="/AI².pdf" 
+                href="/Marvin-Ruff-Profile.pdf" 
                 download 
                 className={`group flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${isDarkMode ? 'bg-white text-black hover:bg-emerald-400' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
               >
