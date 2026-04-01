@@ -1,28 +1,91 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport } from 'ai';
 import { MessageCircle, X, Send, User, Bot, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
-  const chat = useChat({
-    id: 'portfolio-chat',
-    transport: new DefaultChatTransport({ api: '/api/chat' }),
-  }) as any;
-  
-  const { messages = [], sendMessage, status } = chat;
-  const isLoading = status === 'submitted' || status === 'streaming';
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
 
-  const handleSend = () => {
-    if (input && input.trim()) {
-      sendMessage({ text: input });
-      setInput('');
+  const handleSend = async () => {
+    if (!input || !input.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input.trim(),
+    };
+
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
+    setInput('');
+    setIsLoading(true);
+
+    // Initialize assistant message
+    const assistantMessageId = (Date.now() + 1).toString();
+    const assistantMessage: Message = {
+      id: assistantMessageId,
+      role: 'assistant',
+      content: '',
+    };
+    setMessages([...newMessages, assistantMessage]);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages: newMessages }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch response');
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No reader available');
+
+      const decoder = new TextDecoder();
+      let accumulatedContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        accumulatedContent += chunk;
+
+        setMessages((prev) => 
+          prev.map((msg) => 
+            msg.id === assistantMessageId 
+              ? { ...msg, content: accumulatedContent } 
+              : msg
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Chat error:', error);
+      setMessages((prev) => 
+        prev.map((msg) => 
+          msg.id === assistantMessageId 
+            ? { ...msg, content: 'Sorry, I encountered an error. Please try again.' } 
+            : msg
+        )
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -55,7 +118,7 @@ const ChatBot: React.FC = () => {
             className="mb-4 w-[90vw] sm:w-[400px] h-[500px] flex flex-col rounded-2xl overflow-hidden border border-[#D4AF37]/30 shadow-2xl backdrop-blur-xl bg-[#0A192F]/90 text-white"
           >
             {/* Header */}
-            <div className="p-4 border-bottom border-[#D4AF37]/20 bg-[#0A192F] flex items-center justify-between">
+            <div className="p-4 border-b border-[#D4AF37]/20 bg-[#0A192F] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full border border-[#D4AF37] flex items-center justify-center bg-[#112240]">
                   <Bot size={18} className="text-[#D4AF37]" />
@@ -100,15 +163,13 @@ const ChatBot: React.FC = () => {
                         ? 'bg-blue-600/20 border border-blue-500/30 text-blue-50' 
                         : 'bg-[#112240] border border-[#D4AF37]/20 text-gray-200'
                     }`}>
-                      {m.parts?.map((part: any, i: number) => (
-                        <span key={i}>{part.type === 'text' ? part.text : ''}</span>
-                      )) || ''}
+                      {m.content}
                     </div>
                   </div>
                 </div>
               ))}
               
-              {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
+              {isLoading && messages[messages.length - 1]?.content === '' && (
                 <div className="flex justify-start">
                   <div className="flex gap-2 items-center bg-[#112240] border border-[#D4AF37]/20 p-3 rounded-2xl">
                     <Loader2 size={14} className="animate-spin text-[#D4AF37]" />
