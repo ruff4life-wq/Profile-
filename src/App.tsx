@@ -256,11 +256,7 @@ export default function App() {
               referrerPolicy="no-referrer"
               onError={(e) => {
                 const img = e.target as HTMLImageElement;
-                if (img.src.endsWith('/profile.jpg')) {
-                  img.src = '/Profile.jpg';
-                } else {
-                  img.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop";
-                }
+                img.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop";
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60" />
@@ -348,6 +344,10 @@ export default function App() {
                     alt={project.title}
                     className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ${isDarkMode ? 'grayscale group-hover:grayscale-0' : ''}`}
                     referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      const img = e.target as HTMLImageElement;
+                      img.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop";
+                    }}
                   />
                 </div>
                 <div className="p-6 space-y-4">
@@ -452,7 +452,7 @@ export default function App() {
             </a>
           </div>
           <div className={`pt-12 text-[10px] font-mono uppercase tracking-[0.3em] ${isDarkMode ? 'text-white/20' : 'text-slate-400'}`}>
-            © 2026 MARVIN RUFF • VIBE DNA • ALL RIGHTS RESERVED
+            &copy; 2026 MARVIN RUFF &bull; VIBE DNA &bull; ALL RIGHTS RESERVED
           </div>
         </footer>
 

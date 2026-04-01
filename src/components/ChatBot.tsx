@@ -200,7 +200,7 @@ const ChatBot: React.FC = () => {
                 </button>
               </div>
               <p className="text-[9px] text-center mt-2 text-gray-500 uppercase tracking-tighter">
-                Powered by Claude Sonnet 4.5 • AI Governance Compliant
+                Powered by Claude Sonnet 4.5 &bull; AI Governance Compliant
               </p>
             </div>
           </motion.div>
