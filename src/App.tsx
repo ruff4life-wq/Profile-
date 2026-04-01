@@ -31,21 +31,20 @@ import ChatBot from './components/ChatBot';
 const RESUME_DATA = {
   name: "Marvin Ruff",
   alias: "Marvin Vibes DNA",
-  title: "Security & AI Governance Specialist",
+  title: "AI Engineer | Security & AI Governance Specialist",
   location: "Hampton, GA",
   email: "marvinruffcs@gmail.com",
   linkedin: "linkedin.com/in/marvin-ruff-it",
-  summary: "Infrastructure Engineer and Security specialist with extensive experience in IAM, cloud security, and AI governance. Proven track record in orchestrating enterprise-level infrastructure and mitigating vulnerabilities in complex cloud environments.",
+  summary: "Strategic IT professional with over 14 years of experience bridging the gap between legacy infrastructure and emerging technologies. Currently specializing in AI Governance and Cybersecurity, with a proven track record of reducing operational friction—such as slashing staff training time by 70% through automated knowledge systems. I combine a deep background in Infrastructure Engineering with hands-on expertise in LLM workflow automation and privacy-first AI architecture.",
   experience: [
     {
       company: "R1",
       role: "Infrastructure Engineer / Rapid Response",
       period: "02/2022 - 04/2025",
       points: [
-        "Orchestrated onboarding/offboarding for enterprise users via ServiceNow and Active Directory.",
-        "Managed software applications and mitigated security vulnerabilities within AWS cloud environments.",
-        "Led legacy system migrations to cloud-based platforms, improving efficiency and reducing costs.",
-        "Optimized network configurations and monitored system health proactively."
+        "Human-Centric Efficiency: Identified a gap in team knowledge sharing and built a centralized, automated educational base that reduced training time by 70%.",
+        "Security & Cloud Migration: Partnered with Agile teams to transition legacy systems to AWS, proactively identifying and mitigating vulnerabilities to ensure secure, high-availability environments.",
+        "Identity Management: Managed complex onboarding/offboarding for enterprise users via ServiceNow and Active Directory, maintaining 100% adherence to IAM protocols."
       ]
     },
     {
@@ -53,62 +52,53 @@ const RESUME_DATA = {
       role: "Tier 2 Support Representative",
       period: "07/2021 - 02/2022",
       points: [
-        "Resolved inbound customer requests with a 'Customer Obsessed' growth mindset.",
-        "Collaborated with cross-functional teams to reduce escalated cases by 30%.",
-        "Analyzed support trends to implement long-term fixes for critical pain points."
+        "Cross-Functional Problem Solving: Served as the bridge between customers and engineering, analyzing data to pinpoint recurring technical bugs and reducing escalated cases by 30%.",
+        "Leadership: Mentored junior staff on advanced troubleshooting techniques, fostering a more cohesive and self-sufficient Tier 1 support team."
       ]
     },
     {
-      company: "Sierra Wireless",
+      company: "Sierra Wireless (acquired by Semtech)",
       role: "Tier 2 Network Support Specialist",
       period: "07/2019 - 06/2020",
       points: [
-        "Provided 24/7 technical resolution for end-user issues and escalated advanced cases.",
-        "Managed network support for high-priority enterprise clients during organizational transitions.",
-        "Troubleshot advanced cellular gateway and IoT infrastructure bottlenecks."
+        "Mission-Critical Reliability: Provided 24/7 resolution for IoT and cellular gateway infrastructure, ensuring high-priority enterprise clients maintained constant connectivity."
       ]
     }
   ],
   skills: {
-    security: ["Identity & Access Management (IAM)", "Zero Trust Models", "SOC 2", "NIST Standards", "HIPAA", "GDPR"],
-    cloud: ["Azure AD", "AWS", "Google Cloud Platform (GCP)", "IaaS", "VMware"],
-    technical: ["ServiceNow", "Jira", "Active Directory", "Office 365", "Remote Support"],
-    networking: ["TCP/IP", "VPN", "Firewall Configuration", "LAN/WAN"]
+    security: ["AI Security & Governance", "Cybersecurity", "IAM Protocols", "Zero Trust", "Vulnerability Mitigation"],
+    ai: ["LLM Workflow Automation", "Privacy-First AI Architecture", "Prompt Engineering", "Gemini API"],
+    cloud: ["AWS", "Cloud Migration", "High-Availability Environments", "Infrastructure Engineering"],
+    technical: ["ServiceNow", "Active Directory", "JavaScript", "Agile Methodologies"]
   },
   certifications: [
-    { name: "AI Security and Governance", issuer: "Securiti", date: "03/2026" },
-    { name: "Generative AI: Introduction and Applications", issuer: "IBM", date: "03/2026" },
-    { name: "Google AI Professional", issuer: "Google", date: "02/2026" },
-    { name: "Certified in Cybersecurity (CC)", issuer: "ISC2", date: "03/2025" }
+    { name: "AI Security and Governance", issuer: "Securiti", date: "01/2026" },
+    { name: "Google AI Professional", issuer: "Google", date: "01/2026" },
+    { name: "Generative AI: Intro & Applications", issuer: "IBM", date: "01/2026" },
+    { name: "Certified in Cybersecurity (CC)", issuer: "ISC2", date: "01/2025" }
   ],
   education: [
-    { degree: "B.S. in Information Technology (Cybersecurity)", school: "ITT Technical Institute" },
-    { degree: "B.A. in Legal Studies", school: "John Jay College of Criminal Justice" }
+    { degree: "B.S. Information Technology (Cybersecurity)", school: "ITT Technical Institute" },
+    { degree: "B.A. Legal Studies", school: "John Jay College of Criminal Justice" }
   ],
   projects: [
     {
-      title: "AI Governance Framework",
-      description: "Developed a comprehensive framework for ethical AI deployment and risk mitigation in enterprise environments.",
+      title: "FillForward (Privacy-First Chrome Extension)",
+      description: "Solved the 'data-leak' concern in AI tools by engineering a local-first architecture that ensures zero data transmission to external servers during resume parsing. Architected a multi-layer system using JavaScript and the Google Gemini API that successfully maps complex data across 9 major ATS platforms.",
       image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2000&auto=format&fit=crop",
-      tags: ["AI Ethics", "Governance", "Risk Management"]
+      tags: ["Privacy-First", "Chrome Extension", "Gemini API", "ATS Mapping"]
     },
     {
-      title: "Zero Trust IAM Architecture",
-      description: "Designed and implemented a Zero Trust identity model for a multi-cloud infrastructure, reducing unauthorized access by 90%.",
+      title: "Vibe DNA (AI SaaS Strategy)",
+      description: "Developing a platform to standardize text-to-audio outputs. I created specific Prompt Engineering methodologies that translate abstract emotional concepts into consistent musical styles, bridging the gap between human creative intent and machine execution.",
       image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=2000&auto=format&fit=crop",
-      tags: ["IAM", "Zero Trust", "Azure AD"]
-    },
-    {
-      title: "Cloud Security Orchestration",
-      description: "Automated security vulnerability patching and monitoring across AWS and GCP environments using custom scripts.",
-      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop",
-      tags: ["Cloud Security", "Automation", "AWS"]
+      tags: ["Prompt Engineering", "SaaS", "Text-to-Audio", "Creative AI"]
     }
   ],
   proficiency: [
-    { name: "Identity & Access Management (IAM)", level: 95 },
-    { name: "Cloud Security", level: 92 },
-    { name: "AI Governance", level: 88 }
+    { name: "AI Governance & Security", level: 95 },
+    { name: "Infrastructure Engineering", level: 92 },
+    { name: "LLM Workflow Automation", level: 90 }
   ]
 };
 
