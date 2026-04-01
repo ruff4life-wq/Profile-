@@ -237,11 +237,10 @@ export default function App() {
             className={`relative aspect-square md:aspect-[4/5] overflow-hidden rounded-3xl border group ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}
           >
             {/* 
-              Note: Using a placeholder if the local image isn't found. 
-              The user provided an image in the prompt, which I'll assume is named 'profile.jpg'
+              Note: Using a placeholder if the Google Drive image isn't found. 
             */}
             <img 
-              src="/profile.jpg" 
+              src="https://drive.google.com/uc?export=view&id=1m1ObAyT2xhfLudTeHquMjK7jrruMpnZr" 
               alt="Marvin Ruff" 
               className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
               referrerPolicy="no-referrer"
