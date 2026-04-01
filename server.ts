@@ -20,10 +20,10 @@ const chatLimiter = rateLimit({
   }
 });
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+const PORT = Number(process.env.PORT) || 3000;
 
+async function startServer() {
   app.use(express.json());
   app.use(express.static('public'));
 
@@ -100,8 +100,10 @@ Marvin's Core Profile:
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 }
+
+export default app;
 
 startServer();
