@@ -2,18 +2,26 @@
   "version": 2,
   "builds": [
     {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist",
+        "buildCommand": "npm run build"
+      }
+    },
+    {
       "src": "api/chat.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/profile.jpg",
-      "dest": "/public/profile.jpg"
-    },
-    {
       "src": "/api/chat",
       "dest": "/api/chat.ts"
+    },
+    {
+      "src": "/profile.jpg",
+      "dest": "/public/profile.jpg"
     },
     {
       "src": "/(.*)",
