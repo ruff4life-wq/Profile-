@@ -26,6 +26,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import ChatBot from './components/ChatBot';
+import MatrixRain from './components/MatrixRain'; // Ensure this file exists in src/components
 
 // --- Data ---
 const RESUME_DATA = {
@@ -119,13 +120,21 @@ const SectionHeading = ({ children, icon: Icon }: { children: React.ReactNode, i
 export default function App() {
   const [copied, setCopied] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [showPortfolio, setShowPortfolio] = useState(false);
 
   useEffect(() => {
-    // Check system preference on initial load
+    // Entrance Animation Timer
+    const timer = setTimeout(() => {
+      setShowPortfolio(true);
+    }, 3000);
+
+    // Theme persistence
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
       setIsDarkMode(false);
     }
+
+    return () => clearTimeout(timer);
   }, []);
 
   const toggleTheme = () => {
@@ -139,6 +148,11 @@ export default function App() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Condition to show Matrix effect first
+  if (!showPortfolio) {
+    return <MatrixRain />;
+  }
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-[#f8f9fa] text-slate-900'} font-sans selection:bg-emerald-500/30`}>
@@ -236,10 +250,6 @@ export default function App() {
             transition={{ duration: 1, delay: 0.2 }}
             className={`relative aspect-square md:aspect-[4/5] overflow-hidden rounded-3xl border group ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}
           >
-            {/* 
-              Note: Using a placeholder if the local image isn't found. 
-              The user provided an image in the prompt, which I'll assume is named 'profile.jpg'
-            */}
             <img 
               src="/profile.jpg" 
               alt="Marvin Ruff" 
