@@ -28,7 +28,7 @@ export default async function handler(req: any, res: any) {
   try {
     const result = streamText({
       model: anthropic('claude-sonnet-4-5'),
-      maxTokens: MAX_OUTPUT_TOKENS,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
       system: `You are "Marvin's AI Assistant", a specialized AI representative for Marvin Ruff, a Security & AI Governance Specialist with over 14 years of experience in IT.
 
 Your primary objective is to provide information about Marvin's professional background, his extensive experience in cybersecurity and AI governance, his technical skills, and his portfolio projects.
