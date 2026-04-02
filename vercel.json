@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "cleanUrls": true,
   "routes": [
-    { "handle": "filesystem" },
+    {
+      "src": "/profile.jpg",
+      "dest": "/public/profile.jpg"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/server.ts"
