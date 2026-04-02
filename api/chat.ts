@@ -1,6 +1,9 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 
+const MAX_INPUT_CHARS = 2000;
+const MAX_OUTPUT_TOKENS = 500;
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -8,9 +11,24 @@ export default async function handler(req: any, res: any) {
 
   const { messages } = req.body;
 
+  // Validate messages array
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ error: 'Invalid messages format.' });
+  }
+
+  // Validate last message input length
+  const lastMessage = messages[messages.length - 1];
+  if (!lastMessage?.content || typeof lastMessage.content !== 'string') {
+    return res.status(400).json({ error: 'Invalid message content.' });
+  }
+  if (lastMessage.content.length > MAX_INPUT_CHARS) {
+    return res.status(400).json({ error: `Message too long. Maximum ${MAX_INPUT_CHARS} characters allowed.` });
+  }
+
   try {
     const result = streamText({
       model: anthropic('claude-sonnet-4-5'),
+      maxTokens: MAX_OUTPUT_TOKENS,
       system: `You are "Marvin's AI Assistant", a specialized AI representative for Marvin Ruff, a Security & AI Governance Specialist with over 14 years of experience in IT.
 
 Your primary objective is to provide information about Marvin's professional background, his extensive experience in cybersecurity and AI governance, his technical skills, and his portfolio projects.
