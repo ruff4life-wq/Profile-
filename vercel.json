@@ -7,11 +7,11 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "/server.ts"
+      "dest": "/api/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/server.ts"
+      "dest": "/index.html"
     }
   ]
 }
