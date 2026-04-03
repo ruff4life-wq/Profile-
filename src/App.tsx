@@ -26,7 +26,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import ChatBot from './components/ChatBot';
-import MatrixRain from './components/MatrixRain'; // Ensure this file exists in src/components
+import MatrixRain from './components/MatrixRain';
 
 // --- Data ---
 const RESUME_DATA = {
@@ -117,18 +117,133 @@ const SectionHeading = ({ children, icon: Icon }: { children: React.ReactNode, i
   </div>
 );
 
+const ContactForm = ({ isDarkMode }: { isDarkMode: boolean }) => {
+  const [formState, setFormState] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [fields, setFields] = useState({ name: '', email: '', subject: '', message: '' });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFields(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!fields.name || !fields.email || !fields.message) return;
+
+    setFormState('sending');
+
+    try {
+      const res = await fetch('https://formspree.io/f/xdapwajg', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(fields),
+      });
+
+      if (res.ok) {
+        setFormState('success');
+        setFields({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setFormState('error');
+      }
+    } catch {
+      setFormState('error');
+    }
+  };
+
+  const inputClass = `w-full px-4 py-3 rounded-xl text-sm border outline-none transition-all focus:border-emerald-500/60 ${
+    isDarkMode
+      ? 'bg-white/[0.03] border-white/10 text-white placeholder-white/20 focus:bg-white/[0.05]'
+      : 'bg-black/[0.02] border-black/10 text-slate-900 placeholder-slate-400 focus:bg-black/[0.04]'
+  }`;
+
+  if (formState === 'success') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className={`flex flex-col items-center justify-center gap-4 p-12 rounded-2xl border text-center ${isDarkMode ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-emerald-500/30 bg-emerald-500/5'}`}
+      >
+        <CheckCircle2 className="w-12 h-12 text-emerald-500" />
+        <h3 className="text-xl font-bold tracking-tight">Message Received</h3>
+        <p className={`text-sm ${isDarkMode ? 'text-white/50' : 'text-slate-500'}`}>
+          Marvin will follow up personally — usually within 24 hours.
+        </p>
+        <button
+          onClick={() => setFormState('idle')}
+          className="mt-2 text-xs text-emerald-500 hover:underline"
+        >
+          Send another message
+        </button>
+      </motion.div>
+    );
+  }
+
+  return (
+    <div className={`space-y-4 p-8 rounded-2xl border ${isDarkMode ? 'border-white/5 bg-white/[0.02]' : 'border-black/5 bg-black/[0.01]'}`}>
+      <div className="grid grid-cols-2 gap-4">
+        <input
+          type="text"
+          name="name"
+          value={fields.name}
+          onChange={handleChange}
+          placeholder="Your Name"
+          className={inputClass}
+        />
+        <input
+          type="email"
+          name="email"
+          value={fields.email}
+          onChange={handleChange}
+          placeholder="Your Email"
+          className={inputClass}
+        />
+      </div>
+      <select
+        name="subject"
+        value={fields.subject}
+        onChange={handleChange}
+        className={inputClass}
+      >
+        <option value="">Inquiry Type</option>
+        <option value="Full-Time Role">Full-Time Role</option>
+        <option value="AI Governance Consulting">AI Governance Consulting</option>
+        <option value="AI Implementation Project">AI Implementation Project</option>
+        <option value="General Inquiry">General Inquiry</option>
+      </select>
+      <textarea
+        name="message"
+        value={fields.message}
+        onChange={handleChange}
+        placeholder="Tell Marvin what you're working on..."
+        rows={5}
+        className={`${inputClass} resize-none`}
+      />
+      {formState === 'error' && (
+        <p className="text-xs text-red-400">Something went wrong. Try copying the email instead.</p>
+      )}
+      <button
+        onClick={handleSubmit}
+        disabled={formState === 'sending' || !fields.name || !fields.email || !fields.message}
+        className="w-full py-3 bg-emerald-500 text-black font-bold rounded-xl hover:bg-emerald-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] text-sm tracking-wide"
+      >
+        {formState === 'sending' ? 'Sending...' : 'Send Message →'}
+      </button>
+      <p className={`text-[10px] text-center font-mono uppercase tracking-widest ${isDarkMode ? 'text-white/20' : 'text-slate-400'}`}>
+        Direct to Marvin &bull; No middlemen &bull; Replies within 24hrs
+      </p>
+    </div>
+  );
+};
+
 export default function App() {
   const [copied, setCopied] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showPortfolio, setShowPortfolio] = useState(false);
 
   useEffect(() => {
-    // Entrance Animation Timer
     const timer = setTimeout(() => {
       setShowPortfolio(true);
     }, 3000);
 
-    // Theme persistence
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
       setIsDarkMode(false);
@@ -149,7 +264,6 @@ export default function App() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Condition to show Matrix effect first
   if (!showPortfolio) {
     return <MatrixRain />;
   }
@@ -174,31 +288,32 @@ export default function App() {
             <a href="#experience" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Experience</a>
             <a href="#projects" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Projects</a>
             <a href="#skills" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Skills</a>
-            
+            <a href="#contact" className={`${isDarkMode ? 'text-white/60 hover:text-[#00fddc]' : 'text-slate-600 hover:text-[#00fddc]'} transition-colors`}>Contact</a>
+
             <div className="flex items-center gap-4 ml-4">
-              <button 
+              <button
                 onClick={toggleTheme}
                 className={`p-2 rounded-full transition-all ${isDarkMode ? 'bg-white/5 hover:bg-white/10 text-[#00fddc]' : 'bg-black/5 hover:bg-black/10 text-[#00fddc]'}`}
                 aria-label="Toggle theme"
               >
                 {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
-              <button 
-                onClick={handleCopyEmail}
+              <a
+                href="#contact"
                 className="px-4 py-2 bg-[#00fddc] text-black rounded-full text-xs font-bold hover:bg-[#00fddc]/80 transition-all active:scale-95"
               >
-                {copied ? 'COPIED!' : 'CONTACT'}
-              </button>
+                CONTACT
+              </a>
             </div>
           </div>
         </div>
       </nav>
 
       <main className="max-w-6xl mx-auto px-6 py-12 md:py-24 space-y-32">
-        
+
         {/* Hero Section */}
         <section className="grid md:grid-cols-2 gap-12 items-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
@@ -216,16 +331,16 @@ export default function App() {
               {RESUME_DATA.title}. Specializing in secure infrastructure, IAM, and the intersection of Cybersecurity and Generative AI.
             </p>
             <div className="flex items-center gap-4 pt-4">
-              <button 
-                onClick={handleCopyEmail}
+              <a
+                href="#contact"
                 className={`group flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${isDarkMode ? 'bg-white text-black hover:bg-emerald-400' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
               >
                 <Mail className="w-4 h-4" />
-                {copied ? 'Email Copied' : 'Get in Touch'}
+                Get in Touch
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <a 
-                href="https://drive.google.com/uc?export=download&id=1AbyuqJEzJjg1W9otWNNco26mJ133dfAi" 
+              </a>
+              <a
+                href="https://drive.google.com/uc?export=download&id=1AbyuqJEzJjg1W9otWNNco26mJ133dfAi"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`group flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${isDarkMode ? 'bg-white text-black hover:bg-emerald-400' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
@@ -233,9 +348,9 @@ export default function App() {
                 <FileText className="w-4 h-4" />
                 Download Resume
               </a>
-              <a 
-                href={`https://${RESUME_DATA.linkedin}`} 
-                target="_blank" 
+              <a
+                href={`https://${RESUME_DATA.linkedin}`}
+                target="_blank"
                 rel="noopener noreferrer"
                 className={`p-3 border rounded-full transition-colors ${isDarkMode ? 'border-white/10 hover:bg-white/5' : 'border-black/10 hover:bg-black/5 text-slate-900'}`}
               >
@@ -244,15 +359,15 @@ export default function App() {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
             className={`relative aspect-square md:aspect-[4/5] overflow-hidden rounded-3xl border group ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}
           >
-            <img 
-              src="/profile.jpg" 
-              alt="Marvin Ruff" 
+            <img
+              src="/profile.jpg"
+              alt="Marvin Ruff"
               className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
               referrerPolicy="no-referrer"
               onError={(e) => {
@@ -297,7 +412,7 @@ export default function App() {
           <SectionHeading icon={Terminal}>Professional Path</SectionHeading>
           <div className="space-y-12">
             {RESUME_DATA.experience.map((exp, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -331,7 +446,7 @@ export default function App() {
           <SectionHeading icon={Network}>Featured Projects</SectionHeading>
           <div className="grid md:grid-cols-3 gap-8">
             {RESUME_DATA.projects.map((project, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -340,8 +455,8 @@ export default function App() {
                 className={`group relative overflow-hidden rounded-2xl border transition-all ${isDarkMode ? 'border-white/5 bg-white/[0.02] hover:border-emerald-500/20' : 'border-black/5 bg-black/[0.01] hover:border-emerald-500/20'}`}
               >
                 <div className="aspect-video overflow-hidden">
-                  <img 
-                    src={project.image} 
+                  <img
+                    src={project.image}
                     alt={project.title}
                     className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ${isDarkMode ? 'grayscale group-hover:grayscale-0' : ''}`}
                     referrerPolicy="no-referrer"
@@ -400,7 +515,7 @@ export default function App() {
                       <span className="text-xs font-mono text-[#00fddc]">{skill.level}%</span>
                     </div>
                     <div className={`h-1.5 w-full rounded-full overflow-hidden ${isDarkMode ? 'bg-white/5' : 'bg-black/5'}`}>
-                      <motion.div 
+                      <motion.div
                         initial={{ width: 0 }}
                         whileInView={{ width: `${skill.level}%` }}
                         viewport={{ once: true }}
@@ -431,30 +546,51 @@ export default function App() {
         </section>
 
         {/* Footer / CTA */}
-        <footer className={`pt-24 pb-12 border-t text-center space-y-8 ${isDarkMode ? 'border-white/5' : 'border-black/5'}`}>
-          <div className="space-y-4">
-            <h2 className="text-4xl font-bold tracking-tighter">LET'S SECURE THE FUTURE.</h2>
-            <p className={isDarkMode ? 'text-white/40' : 'text-slate-500'}>Open for consultations on AI Governance and Cloud Security.</p>
+        <footer id="contact" className={`pt-24 pb-12 border-t space-y-16 ${isDarkMode ? 'border-white/5' : 'border-black/5'}`}>
+
+          <div className="grid md:grid-cols-2 gap-16 items-start">
+
+            {/* Left — CTA Copy */}
+            <div className="space-y-6">
+              <h2 className="text-4xl font-bold tracking-tighter">LET'S SECURE THE FUTURE.</h2>
+              <p className={`leading-relaxed ${isDarkMode ? 'text-white/40' : 'text-slate-500'}`}>
+                Open for full-time roles, consulting engagements, and AI implementation projects.
+                Drop a message and Marvin will follow up personally — usually within 24 hours.
+              </p>
+              <div className="space-y-4 pt-4">
+                <div className={`flex items-center gap-3 text-sm ${isDarkMode ? 'text-white/50' : 'text-slate-500'}`}>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  AI Governance & Risk Consulting
+                </div>
+                <div className={`flex items-center gap-3 text-sm ${isDarkMode ? 'text-white/50' : 'text-slate-500'}`}>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  Secure AI Implementation Projects
+                </div>
+                <div className={`flex items-center gap-3 text-sm ${isDarkMode ? 'text-white/50' : 'text-slate-500'}`}>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  Full-Time AI Security & GRC Roles
+                </div>
+              </div>
+              <a
+                href={`https://${RESUME_DATA.linkedin}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-2 px-6 py-3 border rounded-full font-bold transition-all text-sm ${isDarkMode ? 'border-white/10 hover:bg-white/5' : 'border-black/10 hover:bg-black/5 text-slate-900'}`}
+              >
+                <Linkedin className="w-4 h-4" />
+                Connect on LinkedIn
+              </a>
+            </div>
+
+            {/* Right — Contact Form */}
+            <ContactForm isDarkMode={isDarkMode} />
+
           </div>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-            <button 
-              onClick={handleCopyEmail}
-              className="flex items-center gap-2 px-8 py-4 bg-emerald-500 text-black rounded-full font-bold hover:bg-emerald-400 transition-all"
-            >
-              <Copy className="w-4 h-4" />
-              {copied ? 'Email Copied!' : 'Copy Email Address'}
-            </button>
-            <a 
-              href={`https://${RESUME_DATA.linkedin}`}
-              className={`flex items-center gap-2 px-8 py-4 border rounded-full font-bold transition-all ${isDarkMode ? 'border-white/10 hover:bg-white/5' : 'border-black/10 hover:bg-black/5 text-slate-900'}`}
-            >
-              <Linkedin className="w-4 h-4" />
-              LinkedIn Profile
-            </a>
-          </div>
-          <div className={`pt-12 text-[10px] font-mono uppercase tracking-[0.3em] ${isDarkMode ? 'text-white/20' : 'text-slate-400'}`}>
+
+          <div className={`pt-12 text-[10px] font-mono uppercase tracking-[0.3em] text-center ${isDarkMode ? 'text-white/20' : 'text-slate-400'}`}>
             &copy; 2026 MARVIN RUFF &bull; VIBE DNA &bull; ALL RIGHTS RESERVED
           </div>
+
         </footer>
 
       </main>
